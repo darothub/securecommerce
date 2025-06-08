@@ -1,4 +1,4 @@
-package com.example.securecommerce.service.v1
+package com.example.securecommerce.v1.service
 
 import com.example.securecommerce.domain.Payment
 import com.example.securecommerce.domain.PaymentStatus

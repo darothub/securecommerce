@@ -1,4 +1,4 @@
-package com.example.securecommerce.service.v1
+package com.example.securecommerce.v1.service
 
 import com.example.securecommerce.dto.PaymentRequest
 import org.springframework.stereotype.Service

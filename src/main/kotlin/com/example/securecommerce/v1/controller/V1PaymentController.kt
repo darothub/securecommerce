@@ -1,8 +1,8 @@
-package com.example.securecommerce.controller.v1
+package com.example.securecommerce.v1.controller
 
 import com.example.securecommerce.dto.PaymentRequest
 import com.example.securecommerce.dto.PaymentResponse
-import com.example.securecommerce.service.v1.V1PaymentService
+import com.example.securecommerce.v1.service.V1PaymentService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
