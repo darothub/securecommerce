@@ -17,40 +17,32 @@ import java.util.concurrent.CompletableFuture
 
 @RestController
 @RequestMapping("/api/v1/payments")
-@Tag(name = "Payment Processing", description = "Credit card payment processing endpoints")
-class PaymentController(
+@Tag(name = "V1 - Baseline Payment Processing", description = "Original implementation with performance and security issues")
+class V1PaymentController(
     private val paymentService: PaymentService
 ) {
 
     @PostMapping("/process")
-    @Operation(summary = "Process payment", description = "Process a credit card payment")
+    @Operation(summary = "Process payment (V1 - Baseline)", description = "Original slow implementation")
     fun processPayment(@Valid @RequestBody request: PaymentRequest): ResponseEntity<PaymentResponse> {
-        // PERFORMANCE ISSUE: Synchronous blocking call
+        // ISSUE: Synchronous blocking call
         val response = paymentService.processPayment(request)
         return ResponseEntity.ok(response)
     }
 
     @GetMapping("/{transactionId}")
-    @Operation(summary = "Get payment status", description = "Retrieve payment status by transaction ID")
+    @Operation(summary = "Get payment status (V1)", description = "No caching - always hits database")
     fun getPaymentStatus(@PathVariable transactionId: String): ResponseEntity<PaymentResponse> {
-        // PERFORMANCE ISSUE: No caching, direct database call every time
+        // ISSUE: No caching, direct database call every time
         val response = paymentService.getPaymentStatus(transactionId)
         return ResponseEntity.ok(response)
     }
 
     @GetMapping("/merchant/{merchantId}")
-    @Operation(summary = "Get merchant payments", description = "Retrieve all payments for a merchant")
+    @Operation(summary = "Get merchant payments (V1)", description = "No pagination - loads ALL records")
     fun getMerchantPayments(@PathVariable merchantId: String): ResponseEntity<List<PaymentResponse>> {
-        // PERFORMANCE ISSUE: No pagination, loads all records
+        // ISSUE: No pagination, loads all records
         val payments = paymentService.getMerchantPayments(merchantId)
         return ResponseEntity.ok(payments)
-    }
-
-    // Async endpoint (we'll optimize this)
-    @PostMapping("/process-async")
-    @Operation(summary = "Process payment asynchronously", description = "Process payment with async handling")
-    fun processPaymentAsync(@Valid @RequestBody request: PaymentRequest): CompletableFuture<ResponseEntity<PaymentResponse>> {
-        return paymentService.processPaymentAsync(request)
-            .thenApply { ResponseEntity.ok(it) }
     }
 }
