@@ -18,5 +18,19 @@ data class PaymentResponse(
     val amount: BigDecimal,
 
     @Schema(description = "Currency", example = "USD")
-    val currency: String
+    val currency: String,
+
+    // v2+: Performance metrics
+    @Schema(description = "Processing time in milliseconds")
+    val processingTimeMs: Long? = null,
+
+    // v3+: Security features
+    @Schema(description = "Masked card number for display")
+    val maskedCardNumber: String? = null,
+
+    @Schema(description = "Card token for future use")
+    val cardToken: String? = null,
+
+    @Schema(description = "Risk assessment score")
+    val riskScore: Double? = null
 )
