@@ -1,10 +1,10 @@
-package com.example.securecommerce.service
+package com.example.securecommerce.service.v1
 
 import com.example.securecommerce.dto.PaymentRequest
 import org.springframework.stereotype.Service
 
 @Service
-class PaymentGatewayService {
+class V1PaymentGatewayService {
 
     fun processPayment(request: PaymentRequest, transactionId: String): GatewayResult {
         // PERFORMANCE ISSUE: Simulate slow external API call

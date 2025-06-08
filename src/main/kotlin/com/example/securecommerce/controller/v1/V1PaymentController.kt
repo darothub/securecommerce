@@ -1,8 +1,8 @@
-package com.example.securecommerce.controller
+package com.example.securecommerce.controller.v1
 
 import com.example.securecommerce.dto.PaymentRequest
 import com.example.securecommerce.dto.PaymentResponse
-import com.example.securecommerce.service.PaymentService
+import com.example.securecommerce.service.v1.V1PaymentService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -13,20 +13,19 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.concurrent.CompletableFuture
 
 @RestController
 @RequestMapping("/api/v1/payments")
 @Tag(name = "V1 - Baseline Payment Processing", description = "Original implementation with performance and security issues")
 class V1PaymentController(
-    private val paymentService: PaymentService
+    private val v1PaymentService: V1PaymentService
 ) {
 
     @PostMapping("/process")
     @Operation(summary = "Process payment (V1 - Baseline)", description = "Original slow implementation")
     fun processPayment(@Valid @RequestBody request: PaymentRequest): ResponseEntity<PaymentResponse> {
         // ISSUE: Synchronous blocking call
-        val response = paymentService.processPayment(request)
+        val response = v1PaymentService.processPayment(request)
         return ResponseEntity.ok(response)
     }
 
@@ -34,7 +33,7 @@ class V1PaymentController(
     @Operation(summary = "Get payment status (V1)", description = "No caching - always hits database")
     fun getPaymentStatus(@PathVariable transactionId: String): ResponseEntity<PaymentResponse> {
         // ISSUE: No caching, direct database call every time
-        val response = paymentService.getPaymentStatus(transactionId)
+        val response = v1PaymentService.getPaymentStatus(transactionId)
         return ResponseEntity.ok(response)
     }
 
@@ -42,7 +41,7 @@ class V1PaymentController(
     @Operation(summary = "Get merchant payments (V1)", description = "No pagination - loads ALL records")
     fun getMerchantPayments(@PathVariable merchantId: String): ResponseEntity<List<PaymentResponse>> {
         // ISSUE: No pagination, loads all records
-        val payments = paymentService.getMerchantPayments(merchantId)
+        val payments = v1PaymentService.getMerchantPayments(merchantId)
         return ResponseEntity.ok(payments)
     }
 }

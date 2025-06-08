@@ -56,7 +56,8 @@ data class Payment(
     val processedAt: LocalDateTime? = null,
 
     @Column
-    val failureReason: String? = null
+    val failureReason: String? = null,
+
 )
 enum class PaymentStatus {
     PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED

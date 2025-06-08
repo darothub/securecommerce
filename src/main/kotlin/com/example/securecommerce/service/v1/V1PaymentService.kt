@@ -1,4 +1,4 @@
-package com.example.securecommerce.service
+package com.example.securecommerce.service.v1
 
 import com.example.securecommerce.domain.Payment
 import com.example.securecommerce.domain.PaymentStatus
@@ -6,28 +6,23 @@ import com.example.securecommerce.dto.PaymentRequest
 import com.example.securecommerce.dto.PaymentResponse
 import com.example.securecommerce.exception.PaymentNotFoundException
 import com.example.securecommerce.repository.PaymentRepository
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
-import java.util.UUID
-import java.util.concurrent.CompletableFuture
+import java.util.*
 
 @Service
 @Transactional
-class PaymentService(
+class V1PaymentService(
     private val paymentRepository: PaymentRepository,
-    private val paymentGatewayService: PaymentGatewayService,
-    private val fraudDetectionService: FraudDetectionService
+    private val v1PaymentGatewayService: V1PaymentGatewayService,
+    private val v1FraudDetectionService: V1FraudDetectionService
 ) {
 
     fun processPayment(request: PaymentRequest): PaymentResponse {
-        // SECURITY ISSUE: No input sanitization or encryption
-        // PERFORMANCE ISSUE: Synchronous processing, no optimization
-
         val transactionId = generateTransactionId()
 
-        // PERFORMANCE ISSUE: Multiple database calls without batching
+        // SECURITY ISSUE: Store raw card data including CVV
         val payment = Payment(
             merchantId = request.merchantId,
             amount = request.amount,
@@ -44,14 +39,9 @@ class PaymentService(
         val savedPayment = paymentRepository.save(payment)
 
         // PERFORMANCE ISSUE: Synchronous fraud detection (slow)
-        val fraudResult = fraudDetectionService.checkFraud(request)
+        val fraudResult = v1FraudDetectionService.checkFraud(request)
         if (fraudResult.isHighRisk) {
-            savedPayment.copy(
-                status = PaymentStatus.FAILED,
-                failureReason = "Fraud detected",
-                processedAt = LocalDateTime.now()
-            ).let { paymentRepository.save(it) }
-
+            updatePaymentStatus(transactionId, PaymentStatus.FAILED, "Fraud detected")
             return PaymentResponse(
                 transactionId = transactionId,
                 status = "FAILED",
@@ -63,30 +53,19 @@ class PaymentService(
 
         // PERFORMANCE ISSUE: Synchronous gateway call
         Thread.sleep(2000) // Simulate slow payment gateway
-
-        val gatewayResult = paymentGatewayService.processPayment(request, transactionId)
+        val gatewayResult = v1PaymentGatewayService.processPayment(request, transactionId)
 
         val finalStatus = if (gatewayResult.isSuccess) PaymentStatus.COMPLETED else PaymentStatus.FAILED
-        savedPayment.copy(
-            status = finalStatus,
-            processedAt = LocalDateTime.now(),
-            failureReason = if (!gatewayResult.isSuccess) gatewayResult.errorMessage else null
-        ).let { paymentRepository.save(it) }
+        updatePaymentStatus(transactionId, finalStatus, gatewayResult.errorMessage)
+
 
         return PaymentResponse(
             transactionId = transactionId,
             status = finalStatus.name,
             message = if (gatewayResult.isSuccess) "Payment processed successfully" else "Payment failed",
             amount = request.amount,
-            currency = request.currency
+            currency = request.currency,
         )
-    }
-
-    @Async
-    fun processPaymentAsync(request: PaymentRequest): CompletableFuture<PaymentResponse> {
-        return CompletableFuture.supplyAsync {
-            processPayment(request)
-        }
     }
 
     fun getPaymentStatus(transactionId: String): PaymentResponse {
@@ -113,6 +92,17 @@ class PaymentService(
                 amount = payment.amount,
                 currency = payment.currency
             )
+        }
+    }
+
+    private fun updatePaymentStatus(transactionId: String, status: PaymentStatus, failureReason: String? = null) {
+        paymentRepository.findByTransactionId(transactionId)?.let { payment ->
+            val updatedPayment = payment.copy(
+                status = status,
+                processedAt = LocalDateTime.now(),
+                failureReason = failureReason
+            )
+            paymentRepository.save(updatedPayment)
         }
     }
 

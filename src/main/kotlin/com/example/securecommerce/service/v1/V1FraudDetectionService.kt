@@ -1,10 +1,10 @@
-package com.example.securecommerce.service
+package com.example.securecommerce.service.v1
 
 import com.example.securecommerce.dto.PaymentRequest
 import org.springframework.stereotype.Service
 
 @Service
-class FraudDetectionService {
+class V1FraudDetectionService {
 
     fun checkFraud(request: PaymentRequest): FraudResult {
         // PERFORMANCE ISSUE: Simulate slow ML fraud detection
