@@ -1,0 +1,60 @@
+server:
+  port: 8080
+  tomcat:
+    # PERFORMANCE ISSUE: Default thread pool settings
+    threads:
+      max: 200
+      min-spare: 10
+
+spring:
+  application:
+    name: payment-microservice
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # PERFORMANCE ISSUE: No connection pooling optimization
+  hikari:
+    maximum-pool-size: 10
+    minimum-idle: 5
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# OpenAPI Documentation
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.securecommerce: DEBUG
+    org.springframework.security: DEBUG
