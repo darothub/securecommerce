@@ -18,32 +18,32 @@ data class Payment(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
     @Column(nullable = false)
-    val merchantId: String,
+    val merchantId: String = "",
 
     @Column(nullable = false)
-    val amount: BigDecimal,
+    val amount: BigDecimal = BigDecimal.ZERO,
 
     @Column(nullable = false, length = 3)
-    val currency: String,
+    val currency: String = "",
 
     @Column(nullable = false, unique = true)
-    val transactionId: String,
+    val transactionId: String = "",
 
     // SECURITY ISSUE: Storing sensitive card data (we'll fix this)
     @Column(nullable = false)
-    val cardNumber: String,
+    val cardNumber: String = "",
 
     @Column(nullable = false)
-    val cardholderName: String,
+    val cardholderName: String = "",
 
     @Column(nullable = false)
-    val expiryMonth: Int,
+    val expiryMonth: Int = 1,
 
     @Column(nullable = false)
-    val expiryYear: Int,
+    val expiryYear: Int = 2025,
 
     @Column(nullable = false)
-    val cvv: String,
+    val cvv: String = "",
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
