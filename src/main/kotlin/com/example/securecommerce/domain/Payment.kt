@@ -61,12 +61,12 @@ data class Payment(
     @Column
     val processingTimeMs: Long? = null,
 
-//    // v3+: Security tracking
-//    @Column
-//    val riskScore: Double? = null,
-//
-//    @Column
-//    val cardToken: String? = null // v3+: For tokenized cards
+    // v3+: Security tracking
+    @Column
+    val riskScore: Double? = null,
+
+    @Column
+    val cardToken: String? = null // v3+: For tokenized cards
 )
 enum class PaymentStatus {
     PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED
